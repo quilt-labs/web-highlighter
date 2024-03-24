@@ -6,14 +6,11 @@ module.exports = {
   },
   plugins: [
     '@typescript-eslint/eslint-plugin',
-    'prettier',
     'import',
   ],
   extends: [
     "eslint:recommended",
     'plugin:@typescript-eslint/all',
-    'prettier',
-    'prettier/@typescript-eslint',
   ],
   root: true,
   env: {
@@ -235,6 +232,7 @@ module.exports = {
         "ignoreRestSiblings": true
       }
     ],
+    "@typescript-eslint/prefer-for-of": "off",
     "@typescript-eslint/prefer-includes": "off",
     "@typescript-eslint/prefer-nullish-coalescing": "off",
     "@typescript-eslint/prefer-readonly-parameter-types": "off",
@@ -249,6 +247,5 @@ module.exports = {
     "@typescript-eslint/semi": "error",
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/typedef": "off",
-    "prettier/prettier": "error"
   },
 };
