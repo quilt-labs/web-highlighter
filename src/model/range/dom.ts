@@ -25,7 +25,7 @@ const countGlobalNodeIndex = ($node: Node, $root: Document | HTMLElement): numbe
 const getTextPreOffset = ($root: Node, $text: Node): number => {
     const nodeStack: Node[] = [$root];
 
-    let $curNode: Node = null;
+    let $curNode: Node | undefined;
     let offset = 0;
 
     while (($curNode = nodeStack.pop())) {
@@ -36,6 +36,7 @@ const getTextPreOffset = ($root: Node, $text: Node): number => {
         }
 
         if ($curNode.nodeType === 3 && $curNode !== $text) {
+            // @ts-expect-error TS does not correctly narrow the type to Text
             offset += $curNode.textContent.length;
         } else if ($curNode.nodeType === 3) {
             break;
@@ -88,9 +89,13 @@ export const formatDomNode = (n: DomNode): DomNode => {
     }
 
     // dont use this yet because it somehow causes the scroll to first highlight to break sometimes
-    const nodeToPass = n.$node.childNodes.length > n.offset ? n.$node.childNodes[n.offset] : n.$node;
+    // const nodeToPass = n.$node.childNodes.length > n.offset ? n.$node.childNodes[n.offset] : n.$node;
 
     const closestTextNode = getClosestTextNode(n.$node.childNodes[n.offset]);
+
+    if (closestTextNode === null) {
+        throw new Error('No text node found in the given node');
+    }
 
     return {
         $node: closestTextNode,

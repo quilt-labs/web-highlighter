@@ -57,6 +57,10 @@ const getNodesIfSameStartEnd = (
             return [];
         }
 
+        if ($element.parentNode === null) {
+            throw new Error('The parent node is null.');
+        }
+
         $element = $element.parentNode;
     }
 
@@ -93,7 +97,11 @@ export const getSelectedNodes = (
     // assumes web-highlighter is running in top-level page so document is the top-level document
 
     // split current node when the start-node and end-node is the same
-    if ($startNode === $endNode && $startNode instanceof rootDocument.defaultView.Text) {
+    if (
+        $startNode === $endNode &&
+        rootDocument.defaultView !== null &&
+        $startNode instanceof rootDocument.defaultView.Text
+    ) {
         return getNodesIfSameStartEnd($startNode, startOffset, endOffset, exceptSelectors);
     }
 
@@ -103,7 +111,7 @@ export const getSelectedNodes = (
     const isExcepted = ($e: HTMLElement) => exceptSelectors?.some(s => isMatchSelector($e, s));
 
     let withinSelectedRange = false;
-    let curNode: Node = null;
+    let curNode: Node | undefined;
 
     while ((curNode = nodeStack.pop())) {
         // do not traverse the excepted node
@@ -152,7 +160,7 @@ export const getSelectedNodes = (
         else if (withinSelectedRange && curNode.nodeType === 3) {
             // skip nodes with only whitespace to avoid creating spurious wrapping nodes
             // that shift the layout
-            if (curNode.textContent.trim() === '') continue;
+            if (curNode.textContent !== null && curNode.textContent.trim() === '') continue;
 
             selectedNodes.push({
                 $node: curNode as Text,
@@ -165,7 +173,7 @@ export const getSelectedNodes = (
     return selectedNodes;
 };
 
-const addClass = ($el: HTMLElement, className?: string[] | string): HTMLElement => {
+const addClass = ($el: HTMLElement, className: string[] | string): HTMLElement => {
     let classNames = Array.isArray(className) ? className : [className];
 
     classNames = classNames.length === 0 ? [getDefaultOptions().style.className] : classNames;
@@ -193,6 +201,11 @@ const wrapNewNode = (
     addClass($wrap, className);
 
     $wrap.appendChild(selected.$node.cloneNode(false));
+
+    if (selected.$node.parentNode === null) {
+        throw new Error('The selected node has no parent node.');
+    }
+
     selected.$node.parentNode.replaceChild($wrap, selected.$node);
 
     $wrap.setAttribute(`data-${DATASET_IDENTIFIER}`, range.id);
@@ -219,6 +232,11 @@ const wrapPartialNode = (
     const $next = selected.$node.nextSibling;
     const $fr = rootDocument.createDocumentFragment();
     const parentId = $parent.dataset[CAMEL_DATASET_IDENTIFIER];
+
+    if (parentId === undefined) {
+        throw new Error('The parent node has no identifier.');
+    }
+
     const parentExtraId = $parent.dataset[CAMEL_DATASET_IDENTIFIER_EXTRA];
     const extraInfo = parentExtraId ? parentId + ID_DIVISION + parentExtraId : parentId;
 
@@ -268,6 +286,11 @@ const wrapPartialNode = (
     }
 
     $wrap.setAttribute(`data-${DATASET_SPLIT_TYPE}`, splitType);
+
+    if ($parent.parentNode === null) {
+        throw new Error('$parent has no parent node.');
+    }
+
     $parent.parentNode.replaceChild($fr, $parent);
 
     return $wrap;
@@ -322,7 +345,12 @@ export const wrapHighlight = (
         $wrap = wrapNewNode(selected, range, className, wrapTag, rootDocument);
     }
     // text node, in a highlight wrap -> should split the existing highlight wrapper
-    else if (isHighlightWrapNode($parent) && (!isNodeEmpty($prev) || !isNodeEmpty($next))) {
+    else if (
+        isHighlightWrapNode($parent) &&
+        $prev !== null &&
+        $next !== null &&
+        (!isNodeEmpty($prev) || !isNodeEmpty($next))
+    ) {
         $wrap = wrapPartialNode(selected, range, className, wrapTag, rootDocument);
     }
     // completely overlap (with a highlight wrap) -> only add extra id info
@@ -344,12 +372,20 @@ export const normalizeSiblingText = ($s: Node, isNext = true) => {
 
     const $sibling = isNext ? $s.nextSibling : $s.previousSibling;
 
-    if ($sibling.nodeType !== 3) {
+    if ($sibling === null || $sibling.nodeType !== 3) {
         return;
     }
 
     const text = $sibling.nodeValue;
 
-    $s.nodeValue = isNext ? $s.nodeValue + text : text + $s.nodeValue;
+    // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+    const nodeValue = $s.nodeValue as string;
+
+    $s.nodeValue = isNext ? nodeValue + text : text + nodeValue;
+
+    if ($sibling.parentNode === null) {
+        throw new Error('The sibling node has no parent node.');
+    }
+
     $sibling.parentNode.removeChild($sibling);
 };
