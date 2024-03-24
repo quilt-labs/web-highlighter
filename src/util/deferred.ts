@@ -15,12 +15,14 @@ export default function getDeferred<T>(): Deferred<T> {
 
     return {
         promise,
+        // @ts-expect-error use before assign
         resolve,
+        // @ts-expect-error use before assign
         reject,
     };
 }
 
-export const resolve = <T>(data) => {
+export const resolve = <T>(data: T) => {
     const defer = getDeferred<T>();
 
     defer.resolve(data);
@@ -28,7 +30,7 @@ export const resolve = <T>(data) => {
     return defer.promise;
 };
 
-export const reject = <T>(data) => {
+export const reject = <T>(data: T) => {
     const defer = getDeferred<T>();
 
     defer.reject(data);

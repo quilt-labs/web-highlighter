@@ -6,11 +6,11 @@
 type HookCallback<T> = (...args: unknown[]) => T;
 
 class Hook<T = unknown> {
-    name = '';
+    name? = '';
 
     private readonly ops: HookCallback<T>[] = [];
 
-    constructor(name?) {
+    constructor(name?: string) {
         this.name = name;
     }
 
@@ -45,6 +45,7 @@ class Hook<T = unknown> {
             ret = op(...args);
         });
 
+        // @ts-expect-error use before assign
         return ret;
     }
 }

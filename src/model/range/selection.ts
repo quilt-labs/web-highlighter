@@ -4,8 +4,13 @@
  * https://caniuse.com/#search=selection
  */
 
-export const getDomRange = (rootDocument: Document): Range => {
+export const getDomRange = (rootDocument: Document): Range | null => {
     const selection = rootDocument.getSelection();
+
+    // this only happens for Firefox when called on a non-visible iframe
+    if (selection === null) {
+        throw new Error('no selection');
+    }
 
     if (selection.isCollapsed) {
         // eslint-disable-next-line no-console
@@ -18,5 +23,5 @@ export const getDomRange = (rootDocument: Document): Range => {
 };
 
 export const removeSelection = (rootDocument: Document): void => {
-    rootDocument.getSelection().removeAllRanges();
+    rootDocument.getSelection()?.removeAllRanges();
 };

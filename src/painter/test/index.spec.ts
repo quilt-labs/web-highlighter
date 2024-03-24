@@ -99,7 +99,7 @@ function createMarkTag(text: string) {
     return mark;
 }
 
-function compareDOMNodes(nodeA, nodeB) {
+function compareDOMNodes(nodeA: Node, nodeB: Node) {
     // Step 1: Compare node types
     if (nodeA.nodeType !== nodeB.nodeType || nodeA.nodeName !== nodeB.nodeName) {
         return false;
@@ -107,8 +107,8 @@ function compareDOMNodes(nodeA, nodeB) {
 
     // Step 2: Compare attributes if element nodes
     if (nodeA.nodeType === Node.ELEMENT_NODE) {
-        const attrsA = nodeA.attributes;
-        const attrsB = nodeB.attributes;
+        const attrsA = (nodeA as Element).attributes;
+        const attrsB = (nodeB as Element).attributes;
 
         if (attrsA.length !== attrsB.length) {
             return false;
@@ -117,7 +117,7 @@ function compareDOMNodes(nodeA, nodeB) {
         for (let i = 0; i < attrsA.length; i++) {
             const attrName = attrsA[i].nodeName;
 
-            if (nodeA.getAttribute(attrName) !== nodeB.getAttribute(attrName)) {
+            if ((nodeA as Element).getAttribute(attrName) !== (nodeB as Element).getAttribute(attrName)) {
                 return false;
             }
         }

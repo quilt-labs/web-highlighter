@@ -14,7 +14,7 @@ import { ROOT_IDX } from '@src/util/const';
 export const getTextChildByOffset = ($parent: Node, offset: number): DomNode => {
     const nodeStack: Node[] = [$parent];
 
-    let $curNode: Node = null;
+    let $curNode: Node | undefined;
     let curOffset = 0;
     let startOffset = 0;
 
@@ -27,6 +27,7 @@ export const getTextChildByOffset = ($parent: Node, offset: number): DomNode => 
 
         if ($curNode.nodeType === 3) {
             startOffset = offset - curOffset;
+            // @ts-expect-error TS does not correctly narrow the type to Text
             curOffset += $curNode.textContent.length;
 
             if (curOffset >= offset) {

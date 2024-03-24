@@ -23,10 +23,6 @@ import {
 export default class Painter {
     options: PainterOptions;
 
-    $style: HTMLStyleElement;
-
-    styleId: string;
-
     hooks: HookMap;
 
     constructor(options: PainterOptions, hooks: HookMap) {
@@ -124,6 +120,10 @@ export default class Painter {
             const spanId = $s.dataset[CAMEL_DATASET_IDENTIFIER];
             const spanExtraIds = $s.dataset[CAMEL_DATASET_IDENTIFIER_EXTRA];
 
+            if (spanExtraIds === undefined) {
+                throw new Error('extra ids should not be undefined');
+            }
+
             // main id is the target id and no extra ids --> to remove
             if (spanId === id && !spanExtraIds) {
                 $toRemove.push($s);
@@ -140,12 +140,25 @@ export default class Painter {
 
         $toRemove.forEach($s => {
             const $parent = $s.parentNode;
+
+            if ($parent === null) {
+                return;
+            }
+
             const $fr = this.options.rootDocument.createDocumentFragment();
 
             forEach($s.childNodes, ($c: Node) => $fr.appendChild($c.cloneNode(false)));
 
             const $prev = $s.previousSibling;
             const $next = $s.nextSibling;
+
+            if ($prev === null) {
+                throw new Error('previous sibling should not be null');
+            }
+
+            if ($next === null) {
+                throw new Error('next sibling should not be null');
+            }
 
             $parent.replaceChild($fr, $s);
             // there are bugs in IE11, so use a more reliable function
@@ -156,7 +169,13 @@ export default class Painter {
 
         $idToUpdate.forEach($s => {
             const { dataset } = $s;
-            const ids = dataset[CAMEL_DATASET_IDENTIFIER_EXTRA].split(ID_DIVISION);
+            const extraIds = dataset[CAMEL_DATASET_IDENTIFIER_EXTRA];
+
+            if (extraIds === undefined) {
+                throw new Error('extra ids should not be undefined');
+            }
+
+            const ids = extraIds.split(ID_DIVISION);
             const newId = ids.shift();
 
             // find overlapped wrapper associated with "extra id"
@@ -180,6 +199,10 @@ export default class Painter {
         $extraToUpdate.forEach($s => {
             const extraIds = $s.dataset[CAMEL_DATASET_IDENTIFIER_EXTRA];
 
+            if (extraIds === undefined) {
+                throw new Error('extra ids should not be undefined');
+            }
+
             $s.dataset[CAMEL_DATASET_IDENTIFIER_EXTRA] = extraIds.replace(reg, '');
             hooks.Remove.UpdateNodes.call(id, $s, 'extra-update');
         });
@@ -193,6 +216,11 @@ export default class Painter {
 
         $spans.forEach($s => {
             const $parent = $s.parentNode;
+
+            if ($parent === null) {
+                return;
+            }
+
             const $fr = rootDocument.createDocumentFragment();
 
             forEach($s.childNodes, ($c: Node) => $fr.appendChild($c.cloneNode(false)));
