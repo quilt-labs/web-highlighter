@@ -176,7 +176,7 @@ const addClass = ($el: HTMLElement, className?: string[] | string): HTMLElement 
     return $el;
 };
 
-const isNodeEmpty = ($n: Node): boolean => !$n || !$n.textContent;
+const isNodeEmpty = ($n: Node): boolean => !$n?.textContent;
 
 /**
  * Wrap a common wrapper.
@@ -283,7 +283,7 @@ const wrapOverlapNode = (selected: SelectedNode, range: HighlightRange, classNam
     removeAllClass($wrap);
     addClass($wrap, className);
 
-    const dataset = $parent.dataset;
+    const { dataset } = $parent;
     const formerId = dataset[CAMEL_DATASET_IDENTIFIER];
 
     dataset[CAMEL_DATASET_IDENTIFIER] = range.id;

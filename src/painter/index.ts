@@ -49,7 +49,7 @@ export default class Painter {
         }
 
         const { $root, rootDocument, className, exceptSelectors } = this.options;
-        const hooks = this.hooks;
+        const { hooks } = this;
 
         let $selectedNodes = getSelectedNodes($root, rootDocument, range.start, range.end, exceptSelectors);
 
@@ -106,8 +106,8 @@ export default class Painter {
         // whether extra ids contains the target id
         const reg = new RegExp(`(${id}\\${ID_DIVISION}|\\${ID_DIVISION}?${id}$)`);
 
-        const hooks = this.hooks;
-        const wrapTag = this.options.wrapTag;
+        const { hooks } = this;
+        const { wrapTag } = this.options;
 
         const $spans = this.options.rootDocument.querySelectorAll<HTMLElement>(
             `${wrapTag}[data-${DATASET_IDENTIFIER}]`,
@@ -155,7 +155,7 @@ export default class Painter {
         });
 
         $idToUpdate.forEach($s => {
-            const dataset = $s.dataset;
+            const { dataset } = $s;
             const ids = dataset[CAMEL_DATASET_IDENTIFIER_EXTRA].split(ID_DIVISION);
             const newId = ids.shift();
 

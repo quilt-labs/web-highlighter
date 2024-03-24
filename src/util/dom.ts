@@ -20,9 +20,9 @@ export const isHighlightWrapNode = ($node: HTMLElement): boolean =>
  * ====================================================================================
  */
 
-const findAncestorWrapperInRoot = ($node: HTMLElement, $root: RootElement): HTMLElement => {
+const findAncestorWrapperInRoot = ($node: HTMLElement, $root: RootElement): HTMLElement | null => {
     let isInsideRoot = false;
-    let $wrapper: HTMLElement = null;
+    let $wrapper: HTMLElement | null = null;
 
     while ($node) {
         if (isHighlightWrapNode($node)) {
@@ -44,26 +44,38 @@ const findAncestorWrapperInRoot = ($node: HTMLElement, $root: RootElement): HTML
  * get highlight id by a node
  */
 export const getHighlightId = ($node: HTMLElement, $root: RootElement): string => {
-    $node = findAncestorWrapperInRoot($node, $root);
+    const $ancestorNode = findAncestorWrapperInRoot($node, $root);
 
-    if (!$node) {
+    if (!$ancestorNode) {
         return '';
     }
 
-    return $node.dataset[CAMEL_DATASET_IDENTIFIER];
+    const highlightId = $ancestorNode.dataset[CAMEL_DATASET_IDENTIFIER];
+
+    if (highlightId === undefined) {
+        throw new Error('Highlight id is undefined');
+    }
+
+    return highlightId;
 };
 
 /**
  * get extra highlight id by a node
  */
 export const getExtraHighlightId = ($node: HTMLElement, $root: RootElement): string[] => {
-    $node = findAncestorWrapperInRoot($node, $root);
+    const $ancestorNode = findAncestorWrapperInRoot($node, $root);
 
-    if (!$node) {
+    if (!$ancestorNode) {
         return [];
     }
 
-    return $node.dataset[CAMEL_DATASET_IDENTIFIER_EXTRA].split(ID_DIVISION).filter(i => i);
+    const extraHighlightId = $ancestorNode.dataset[CAMEL_DATASET_IDENTIFIER_EXTRA];
+
+    if (extraHighlightId === undefined) {
+        throw new Error('Extra highlight id is undefined');
+    }
+
+    return extraHighlightId.split(ID_DIVISION).filter(i => i);
 };
 
 /**
@@ -77,7 +89,7 @@ export const getHighlightsByRoot = ($roots: RootElement | RootElement[], wrapTag
     const $wraps: HTMLElement[] = [];
 
     for (const $r of $roots) {
-        const $list = $r.querySelectorAll<HTMLElement>(`${wrapTag}[data-${DATASET_IDENTIFIER}]`);
+        const $list = Array.from($r.querySelectorAll<HTMLElement>(`${wrapTag}[data-${DATASET_IDENTIFIER}]`));
 
         // eslint-disable-next-line prefer-spread
         $wraps.push.apply($wraps, $list);
@@ -104,6 +116,10 @@ export const getHighlightById = ($root: RootElement, id: string, wrapTag: string
         }
 
         const extraId = $n.dataset[CAMEL_DATASET_IDENTIFIER_EXTRA];
+
+        if (extraId === undefined) {
+            throw new Error('Extra highlight id is undefined');
+        }
 
         if (reg.test(extraId)) {
             $highlights.push($n);

@@ -22,9 +22,9 @@ export const CAMEL_DATASET_SPLIT_TYPE = camel(DATASET_SPLIT_TYPE);
 const DEFAULT_WRAP_TAG = 'span';
 
 export const getDefaultOptions = () => ({
-    $root: document || document.documentElement,
+    $root: document,
     rootDocument: document,
-    exceptSelectors: null,
+    exceptSelectors: [],
     wrapTag: DEFAULT_WRAP_TAG,
     verbose: false,
     style: {

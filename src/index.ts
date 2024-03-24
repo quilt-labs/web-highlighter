@@ -1,4 +1,4 @@
-import type { DomNode, DomMeta, HookMap, HighlighterOptions } from '@src/types';
+import type { DomNode, DomMeta, HookMap, HighlighterOptionsInput, HighlighterOptions } from '@src/types';
 import EventEmitter from '@src/util/event.emitter';
 import HighlightRange from '@src/model/range';
 import HighlightSource from '@src/model/source';
@@ -41,26 +41,47 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
 
     cache: Cache;
 
-    private _hoverId: string;
+    private _hoverId: string | null = null;
 
-    private options: HighlighterOptions;
+    private readonly options: HighlighterOptions;
 
     private readonly event = getInteraction();
 
-    constructor(options?: HighlighterOptions) {
+    constructor(optionsInput?: HighlighterOptionsInput) {
         super();
-        this.options = getDefaultOptions();
         // initialize hooks
         this.hooks = this._getHooks();
-        this.setOption(options);
+
+        this.options = {
+            ...getDefaultOptions(),
+        };
+
+        if (optionsInput !== undefined) {
+            this.options = {
+                ...this.options,
+                ...optionsInput,
+            };
+        }
+
+        this.painter = new Painter(
+            {
+                $root: this.options.$root,
+                rootDocument: this.options.rootDocument,
+                wrapTag: this.options.wrapTag,
+                className: this.options.style.className,
+                exceptSelectors: this.options.exceptSelectors,
+            },
+            this.hooks,
+        );
+
         // initialize cache
         this.cache = new Cache();
 
-        const $root = this.options.$root;
+        const { $root } = this.options;
 
-        // initialize event listener
+        // @ts-expect-error - figure out how to type generic events
         addEventListener($root, this.event.PointerOver, this._handleHighlightHover);
-        // initialize event listener
+        // @ts-expect-error - figure out how to type generic events
         addEventListener($root, this.event.PointerTap, this._handleHighlightClick);
         eventEmitter.on(INTERNAL_ERROR_EVENT, this._handleError);
     }
@@ -96,32 +117,17 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
             : getHighlightsByRoot(this.options.$root, this.options.wrapTag);
 
     dispose = () => {
-        const $root = this.options.$root;
+        const { $root } = this.options;
 
+        // @ts-expect-error - figure out how to type generic events
         removeEventListener($root, this.event.PointerOver, this._handleHighlightHover);
         removeEventListener($root, this.event.PointerEnd, this._handleSelection);
+        // @ts-expect-error - figure out how to type generic events
         removeEventListener($root, this.event.PointerTap, this._handleHighlightClick);
         this.removeAll();
     };
 
-    setOption = (options?: HighlighterOptions) => {
-        this.options = {
-            ...this.options,
-            ...options,
-        };
-        this.painter = new Painter(
-            {
-                $root: this.options.$root,
-                rootDocument: this.options.rootDocument,
-                wrapTag: this.options.wrapTag,
-                className: this.options.style.className,
-                exceptSelectors: this.options.exceptSelectors,
-            },
-            this.hooks,
-        );
-    };
-
-    fromRange = (range: Range): HighlightSource => {
+    fromRange = (range: Range): HighlightSource | null => {
         const start: DomNode = {
             $node: range.startContainer,
             offset: range.startOffset,
@@ -149,7 +155,7 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
         return this._highlightFromHRange(hRange);
     };
 
-    fromStore = (start: DomMeta, end: DomMeta, text: string, id: string, extra?: unknown): HighlightSource => {
+    fromStore = (start: DomMeta, end: DomMeta, text: string, id: string, extra?: unknown): HighlightSource | null => {
         const hs = new HighlightSource(start, end, text, id, extra);
 
         try {
@@ -205,7 +211,7 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
         },
     });
 
-    private readonly _highlightFromHRange = (range: HighlightRange): HighlightSource => {
+    private readonly _highlightFromHRange = (range: HighlightRange): HighlightSource | null => {
         const source: HighlightSource = range.serialize(this.options.$root, this.hooks);
         const $wraps = this.painter.highlightRange(range);
 
@@ -242,7 +248,8 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
         }
     };
 
-    private readonly _handleHighlightHover = (e: MouseEvent | TouchEvent) => { const $target = e.target as HTMLElement;
+    private readonly _handleHighlightHover = (e: MouseEvent | TouchEvent) => {
+        const $target = e.target as HTMLElement;
 
         if (!isHighlightWrapNode($target)) {
             this._hoverId && this.emit(EventType.HOVER_OUT, { id: this._hoverId }, this, e);

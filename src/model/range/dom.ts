@@ -6,7 +6,7 @@ import type { DomMeta, DomNode } from '@src/types';
 import { CAMEL_DATASET_IDENTIFIER, ROOT_IDX, UNKNOWN_IDX } from '@src/util/const';
 
 const countGlobalNodeIndex = ($node: Node, $root: Document | HTMLElement): number => {
-    const tagName = ($node as HTMLElement).tagName;
+    const { tagName } = $node as HTMLElement;
     const $list = $root.getElementsByTagName(tagName);
 
     for (let i = 0; i < $list.length; i++) {
@@ -49,7 +49,7 @@ const getTextPreOffset = ($root: Node, $text: Node): number => {
  * find the original dom parent node (none highlight dom)
  */
 const getOriginParent = ($node: HTMLElement | Text): HTMLElement => {
-    if ($node instanceof HTMLElement && (!$node.dataset || !$node.dataset[CAMEL_DATASET_IDENTIFIER])) {
+    if ($node instanceof HTMLElement && !$node.dataset?.[CAMEL_DATASET_IDENTIFIER]) {
         return $node;
     }
 
@@ -66,7 +66,7 @@ export const getDomMeta = ($node: HTMLElement | Text, offset: number, $root: Doc
     const $originParent = getOriginParent($node);
     const index = $originParent === $root ? ROOT_IDX : countGlobalNodeIndex($originParent, $root);
     const preNodeOffset = getTextPreOffset($originParent, $node);
-    const tagName = $originParent.tagName;
+    const { tagName } = $originParent;
 
     return {
         parentTagName: tagName,
@@ -88,9 +88,9 @@ export const formatDomNode = (n: DomNode): DomNode => {
     }
 
     // dont use this yet because it somehow causes the scroll to first highlight to break sometimes
-    const nodeToPass = n.$node.childNodes.length > n.offset ? n.$node.childNodes[n.offset] : n.$node
+    const nodeToPass = n.$node.childNodes.length > n.offset ? n.$node.childNodes[n.offset] : n.$node;
 
-    const closestTextNode = getClosestTextNode(n.$node.childNodes[n.offset])
+    const closestTextNode = getClosestTextNode(n.$node.childNodes[n.offset]);
 
     return {
         $node: closestTextNode,
@@ -100,16 +100,16 @@ export const formatDomNode = (n: DomNode): DomNode => {
 
 export function getClosestTextNode(node: Node): Node | null {
     if (node.nodeType == node.TEXT_NODE) {
-        return node
+        return node;
     }
 
-    for (let childNode of node.childNodes) {
-        const closestTextNode = getClosestTextNode(childNode)
+    for (const childNode of node.childNodes) {
+        const closestTextNode = getClosestTextNode(childNode);
 
         if (closestTextNode !== null && closestTextNode.nodeType == node.TEXT_NODE) {
-            return closestTextNode
+            return closestTextNode;
         }
     }
 
-    return null
+    return null;
 }

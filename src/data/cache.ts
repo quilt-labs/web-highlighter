@@ -3,7 +3,7 @@ import type HighlightSource from '@src/model/source';
 import { ERROR } from '@src/types';
 
 class Cache extends EventEmitter {
-    private _data: Map<string, HighlightSource> = new Map();
+    private _data = new Map<string, HighlightSource>();
 
     get data() {
         return this.getAll();
@@ -23,7 +23,7 @@ class Cache extends EventEmitter {
         source.forEach(s => this._data.set(s.id, s));
     }
 
-    get(id: string): HighlightSource {
+    get(id: string): HighlightSource | undefined {
         return this._data.get(id);
     }
 

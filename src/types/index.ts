@@ -3,15 +3,17 @@ import type Hook from '@src/util/hook';
 export type RootElement = Document | HTMLElement;
 
 export interface HighlighterOptions {
-    $root?: RootElement;
-    rootDocument?: Document;
-    exceptSelectors?: string[];
-    wrapTag?: string;
-    verbose?: boolean;
-    style?: {
-        className?: string[] | string;
+    $root: RootElement;
+    rootDocument: Document;
+    exceptSelectors: string[];
+    wrapTag: string;
+    verbose: boolean;
+    style: {
+        className: string[] | string;
     };
 }
+
+export type HighlighterOptionsInput = Partial<HighlighterOptions>;
 
 export interface PainterOptions {
     $root: RootElement;
