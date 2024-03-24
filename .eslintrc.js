@@ -10,7 +10,7 @@ module.exports = {
     'import',
   ],
   extends: [
-    "eslint:all",
+    "eslint:recommended",
     'plugin:@typescript-eslint/all',
     'prettier',
     'prettier/@typescript-eslint',
@@ -48,6 +48,7 @@ module.exports = {
       "error",
       "as-needed"
     ],
+    "func-style": "off",
     "id-length": "off",
     "implicit-arrow-linebreak": "off",
     "init-declarations": "off",
@@ -111,6 +112,7 @@ module.exports = {
     "no-ternary": "off",
     "no-unused-expressions": "off",
     "no-warning-comments": "off",
+    "no-undefined": "off",
     "new-cap": "off",
     "one-var": [
       "error",
@@ -203,6 +205,7 @@ module.exports = {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/generic-type-naming": "off",
     "@typescript-eslint/init-declarations": "off",
+    "@typescript-eslint/max-params": "off",
     "@typescript-eslint/naming-convention": "off",
     "@typescript-eslint/no-dynamic-delete": "off",
     "@typescript-eslint/no-empty-function": "off",
@@ -222,6 +225,7 @@ module.exports = {
     "@typescript-eslint/no-type-alias": "off",
     "@typescript-eslint/no-unnecessary-condition": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-unused-expressions": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
