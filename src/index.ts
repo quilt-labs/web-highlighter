@@ -1,4 +1,4 @@
-import type { DomNode, DomMeta, HookMap, HighlighterOptionsInput, HighlighterOptions } from '@src/types';
+import type { DomNode, DomMeta, HookMap, HighlighterOptionsInput, HighlighterOptions, IInteraction } from '@src/types';
 import EventEmitter from '@src/util/event.emitter';
 import HighlightRange from '@src/model/range';
 import HighlightSource from '@src/model/source';
@@ -45,7 +45,7 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
 
     private readonly options: HighlighterOptions;
 
-    private readonly event = getInteraction();
+    private readonly event: IInteraction;
 
     constructor(optionsInput?: HighlighterOptionsInput) {
         super();
@@ -73,6 +73,8 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
             },
             this.hooks,
         );
+
+        this.event = getInteraction(this.options.window);
 
         // initialize cache
         this.cache = new Cache();
