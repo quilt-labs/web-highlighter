@@ -16,7 +16,8 @@ module.exports = {
         path: path.resolve(basePath, 'dist'),
         library: 'Highlighter',
         libraryTarget: 'umd',
-        libraryExport: 'default'
+        libraryExport: 'default',
+        globalObject: 'this',
     },
     resolve: {
         plugins: [new TsconfigPathsPlugin()],
