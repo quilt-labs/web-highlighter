@@ -16,8 +16,8 @@
     "build-example": "target=example node script/build.js",
     "static": "run-p watch serve",
     "start": "node script/dev.js",
-    "build:types": "tscpaths -p tsconfig.json -s ./src -o ./dist",
-    "build:code": "target=dist node script/build.js",
+    "build:types": "cross-env tscpaths -p tsconfig.json -s ./src -o ./dist",
+    "build:code": "cross-env target=dist node script/build.js",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider run-s build:code build:types",
     "prepublishOnly": "run-s lint build test",
     "prepare": "npm run build"
